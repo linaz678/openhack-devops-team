@@ -1,0 +1,41 @@
+pipeline {
+     agent { docker { image 'node:16.13.1-alpine' } }
+
+    stages {
+        stage('Git checkout') {
+            steps{
+                // Get source code from a GitHub repository
+              git branch: 'main', url: 'https://github.com/linaz678/openhack-devops-team.git'
+          
+            }
+        }
+        
+        stage('Build') {
+            steps{
+                // Do your build task
+                sh 'dotnet restore ./apis/poi/poi.sln'
+                sh 'dotnet clean ./apis/poi/poi.sln --configuration Release'
+                sh 'dotnet build --source ./apis/poi/poi.sln ' 
+            }
+        }
+        
+        stage('Test') {
+            steps{
+                // Run unit tests, integration tests, and/or e2e tests
+                sh 'dotnet test ./apis/poi/tests/IntegrationTests/IntegrationTests.csproj --configuration Release --no-restore'
+                sh 'dotnet test ./apis/poi/tests/UnitTests/UnitTests.csproj --configuration Release --no-restore'
+            }
+        }
+        
+        stage('Publish') {
+            steps{
+                // Publish your artifacts to somewhere.
+                // However, in our hands-on, you just need to print the artifact list by Linux command 'ls -la'
+                sh 'dotnet publish ./apis/poi/web/poi.csproj --configuration Release --no-restore'
+                sh 'ls -la ./apis/poi/web/bin/Release/netcoreapp3.1/publish/'
+            }
+        }
+
+
+    }
+}

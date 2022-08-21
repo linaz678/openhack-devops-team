@@ -1,0 +1,43 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Git checkout') {
+            steps{
+                // Get source code from a GitHub repository
+                git branch:'main', url:'https://github.com/linaz678/openhack-devops-team.git'
+            }
+        }
+        
+        stage('Get') {
+            steps{
+                dir("./apis/trips/") {
+                    sh '/usr/local/go/bin/go get -d'
+                }
+            }
+        }
+        
+        stage('Build') {
+            steps{
+                dir("./apis/trips/") {
+                    sh '/usr/local/go/bin/go build -o main .'
+                }
+            }
+        }
+        
+        stage('Tests') {
+            steps{
+                dir("./apis/trips/") {
+                    sh '/usr/local/go/bin/go test ./tripsgo -run Unit'
+                    sh '/usr/local/go/bin/go test ./tripsgo'
+                }
+            }
+        }
+        
+        stage('Publish') {
+            steps{
+                sh 'ls -la ./apis/trips/'
+            }
+        }
+    }
+}

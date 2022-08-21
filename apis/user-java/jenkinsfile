@@ -1,0 +1,32 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Git checkout') {
+            steps{
+                // Get source code from a GitHub repository
+                git branch:'main', url:'https://github.com/linaz678/openhack-devops-team.git'
+            }
+        }
+        
+        stage('Build') {
+            steps{
+                sh 'mvn -f ./apis/user-java/pom.xml package'
+            }
+        }
+        
+        stage('Test') {
+            steps{
+                dir('./apis/user-java/') {
+                  sh 'mvn test'
+                }
+            }
+        }
+        
+        stage('Publish') {
+            steps{
+                sh 'ls -la ./apis/user-java/target/'
+            }
+        }
+    }
+}
